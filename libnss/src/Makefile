@@ -1,10 +1,12 @@
 CC=gcc
-CFLAGS=-Wall -Wextra -Werror -pedantic -std=c99
+CFLAGS=-Wall -Wextra -Werror -pedantic -std=gnu11 -fPIC
 NAME=onlineta
-LIBNSS_NAME=libnss_$(NAME).so.2
+NSSLIB=libnss_$(NAME).so.2
 
 all: lib
 
 lib: main.c
-	$(CC) $(CFLAGS) -shared -o $(LIBNSS_NAME) -Wl,-soname,$(LIBNSS_NAME) main.c
+	$(CC) $(CFLAGS) -shared -o $(NSSLIB) -Wl,-soname,$(NSSLIB) main.c
 
+install:
+	cp $(NSSLIB) /lib64/
