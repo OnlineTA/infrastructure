@@ -28,7 +28,8 @@ _nss_onlineta_getpwnam_r(const char *name, struct passwd *result,
   kuid[7] = '\0';
 
   result->pw_name = kuid;
-  result->pw_uid = strtoul(name, NULL, 36);
+  result->pw_uid = strtoul(name, NULL, 36) - strtoul("aaa000", NULL, 36)
+                    + 100000;
   result->pw_gid = 42; // TODO
   result->pw_dir = "/";
   result->pw_shell = "";
