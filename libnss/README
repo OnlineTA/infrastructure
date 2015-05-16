@@ -1,0 +1,14 @@
+Installeret på serveren er libnss-db (2.2.3pre1-5+b3).
+
+Kildekoden til den kan hentes her:
+https://launchpad.net/ubuntu/+source/libnss-db/2.2.3pre1-5build3
+
+Kildekoden til den er nok mere nyttigt end noget som helst andet information
+ude på nettet. Jeg vil dog prøve at dokumentere det lidt mere her.
+
+
+P.S.
+
+Således kan man tjekke hvad der ellers er installeret af libnss moduler:
+
+/sbin/ldconfig -p | grep libnss
