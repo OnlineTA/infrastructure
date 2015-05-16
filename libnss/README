@@ -1,3 +1,15 @@
+Vi kan nok godt bruge den allerede eksisterende libnss-db:
+
+  libnss-db - NSS module for using Berkeley Databases as a naming service
+
+  nss_db is a set of C library extensions which allow Berkeley Databases to
+  be used as a primary source of aliases, ethers, groups, hosts, networks,
+  protocol, users, RPCs, services, and shadow passwords (instead of or in
+  addition to using flat files or NIS). Install nss_db if your flat name
+  service files are too large and lookups are slow.
+
+  https://packages.debian.org/sid/libnss-db
+
 Installeret på serveren er libnss-db (2.2.3pre1-5+b3).
 
 Kildekoden til den kan hentes her:
@@ -5,7 +17,6 @@ https://launchpad.net/ubuntu/+source/libnss-db/2.2.3pre1-5build3
 
 Kildekoden til den er nok mere nyttigt end noget som helst andet information
 ude på nettet. Jeg vil dog prøve at dokumentere det lidt mere her.
-
 
 P.S.
 
