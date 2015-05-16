@@ -2,6 +2,7 @@
 #include <pwd.h> // struct passwd
 #include <stdlib.h> // strtoul
 #include <errno.h> // errno
+#include <string.h> // strncpy
 
 #include <stdio.h>
 
@@ -21,11 +22,20 @@ enum nss_status
 _nss_onlineta_getpwnam_r(const char *name, struct passwd *result,
   char *buffer, size_t buflen, int *errnop)
 {
-  printf("HEJ!\n");
+  char *kuid = (char*)malloc(7 * sizeof(char));
+
+  strncpy(kuid, name, 6);
+  kuid[7] = '\0';
+
+  result->pw_name = kuid;
   result->pw_uid = strtoul(name, NULL, 36);
+  result->pw_gid = 42; // TODO
+  result->pw_dir = "/";
+  result->pw_shell = "";
 
   buffer = buffer;
   buflen = buflen;
+  errnop = errnop;
   *errnop = errno;
-  return NSS_STATUS_NOTFOUND;
+  return NSS_STATUS_SUCCESS;
 }
