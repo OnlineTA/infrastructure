@@ -8,4 +8,3 @@ all: lib
 lib: main.c
 	$(CC) $(CFLAGS) -shared -o $(LIBNSS_NAME) -Wl,-soname,$(LIBNSS_NAME) main.c
 
-install:
