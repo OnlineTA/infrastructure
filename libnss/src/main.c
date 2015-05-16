@@ -22,8 +22,15 @@ enum nss_status
 _nss_onlineta_getpwnam_r(const char *name, struct passwd *result,
   char *buffer, size_t buflen, int *errnop)
 {
-  char *kuid = (char*)malloc(7 * sizeof(char));
+  char *kuid;
 
+  if (strlen(name) != 6)
+  {
+    *errnop = errno;
+    return NSS_STATUS_NOTFOUND;
+  }
+
+  kuid = (char*)malloc(7 * sizeof(char));
   strncpy(kuid, name, 6);
   kuid[7] = '\0';
 
