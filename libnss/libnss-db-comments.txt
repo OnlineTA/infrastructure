@@ -1,0 +1,79 @@
+It is worth considering to use the pre-existing libnss-db:
+
+  libnss-db - NSS module for using Berkeley Databases as a naming service
+
+  nss_db is a set of C library extensions which allow Berkeley Databases to
+  be used as a primary source of aliases, ethers, groups, hosts, networks,
+  protocol, users, RPCs, services, and shadow passwords (instead of or in
+  addition to using flat files or NIS). Install nss_db if your flat name
+  service files are too large and lookups are slow.
+
+  https://packages.debian.org/sid/libnss-db
+
+OBS! We chose not to use this as this gave little benefit over writing our own
+NSS module. It requires for all users to already be fed into a BerkleyDB file,
+whch is a bit premature, especially if we want to set up a pool of anonymous
+users from which to draw uid's for anonymous testing.
+
+Installed on the server is libnss-db (2.2.3pre1-5+b3).
+
+The source code can be found here:
+https://launchpad.net/ubuntu/+source/libnss-db/2.2.3pre1-5build3
+
+The source looks more useful than any other documentation out there. I'll try
+to sum up my observations for possible future use.
+
+libnss-db can set up and use the files
+
+  _PATH_VARDB "passwd.db"
+  _PATH_VARDB "ethers.db"
+  _PATH_VARDB "rpc.db"
+  _PATH_VARDB "group.db"
+  _PATH_VARDB "shadow.db"
+  _PATH_VARDB "services.db"
+  _PATH_VARDB "protocols.db"
+
+  where _PATH_VARDB is what you'll find after #include <paths.h>
+
+With the modules, a userland utility makedb is shipped as well. This is used in
+db-Makefile to generate the necessary databases from the respective /etc/
+files.
+
+From db-Makefile and files-pwd.c we can make out that the /etc/passwd is
+restructured, for each user writing three key-values pairs:
+
+  00 root:x:0:0:root:/root:/bin/bash
+  .root root:x:0:0:root:/root:/bin/bash
+  =0 root:x:0:0:root:/root:/bin/bash
+  ... (e.g. 9 entries later) ...
+  010 nobody:x:99:99:nobody:/:/usr/bin/nologin
+  .nobody nobody:x:99:99:nobody:/:/usr/bin/nologin
+  =99 nobody:x:99:99:nobody:/:/usr/bin/nologin
+  ...
+
+At first "0" is followed by an auto-increment int, followed by the /etc/passwd
+line, then "." is followed by the username, followed again by the /etc/passwd
+line, and lastly "=" is followed by the uid, followed again by the /etc/passwd
+line.
+
+This makes it possible to lookup in the BerkleyDB by username or uid. A lot of
+data duplication, yes. But that's what it is with key-value stores..
+
+The text following the key (key and value separated by \0 or space) can at time
+of makedb be anything, but for getent to work, it has to pretty much follow the
+format of /etc/passwd.
+
+OBS! db-Makefile breaks on any system where _PATH_VARDB is not /var/db/, so
+e.g. Debian.
+
+So, here's a fun session (here, _PATH_VARDB points to /var/lib/misc/):
+
+  $ echo ".noob lol:x:0:0:" | sudo makedb -o /var/lib/misc/passwd.db -
+  $ getent passwd noob
+  lol:x:0:0::
+
+P.S.
+
+Here's how you might check what other libnss modules you have installed:
+
+  /sbin/ldconfig -p | grep libnss
