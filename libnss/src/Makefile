@@ -9,4 +9,5 @@ lib: $(NAME).c
 	$(CC) $(CFLAGS) -shared -o $(NSSLIB) -Wl,-soname,$(NSSLIB) $(NAME).c
 
 install:
+	rm /lib64/$(NSSLIB)
 	cp $(NSSLIB) /lib64/
