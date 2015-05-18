@@ -8,6 +8,8 @@ all: lib
 lib: $(NAME).c
 	$(CC) $(CFLAGS) -shared -o $(NSSLIB) -Wl,-soname,$(NSSLIB) $(NAME).c
 
-install:
-	rm /lib64/$(NSSLIB)
+install: uninstall
 	cp $(NSSLIB) /lib64/
+
+uninstall:
+	rm -rf /lib64/$(NSSLIB)
