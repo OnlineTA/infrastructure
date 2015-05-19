@@ -40,9 +40,10 @@ int to_base_36(unsigned long uid, char buffer[], int buflen) {
     return -1;
 
   // Size of 64-bit LONG_MAX in base36 + 1
-  char tmpbuf[14];
-  memset(tmpbuf, 0, 14);
-  int tmpbuflen = 14;
+  const int tmpbuflen = 14;
+  char tmpbuf[tmpbuflen];
+  memset(tmpbuf, 0, tmpbuflen);
+
 
   int i = tmpbuflen - 1;
   tmpbuf[i--] = '\0';
@@ -54,14 +55,12 @@ int to_base_36(unsigned long uid, char buffer[], int buflen) {
   int size = tmpbuflen - (i + 1);
   // Check that nothing is left of our number and
   // that we have enough buffer space to \0-terminate
-  printf("%d\n", size);
   if ((buflen - size >= 0) && uid == 0) {
     // Copy reversed string to start of return buffer
     strncpy(buffer, &tmpbuf[i+1], buflen);
     return 0;
     }
 
-  printf("%d\n", buflen);
   return -1;
 }
 
@@ -162,10 +161,11 @@ enum nss_status _nss_base36_getpwuid_r(uid_t uid, struct passwd *result,
   unsigned long luid = uid + KUID_BASE - MYUID_BASE;
 
   // Buffer for username
-  char name[7];
+  #define namebuf_len 7
+  char name[namebuf_len];
 
   // Convert uid back to base36
-  if (to_base_36(luid, name, 7) != 0) {
+  if (to_base_36(luid, name, namebuf_len) != 0) {
     goto enoent;
   }
 
