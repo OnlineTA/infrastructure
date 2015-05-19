@@ -21,41 +21,47 @@
 const char shell[] = "/bin/false";
 const char dir[] = "/tmp";
 const char gecos[] = ",,,,";
+const char password[] = "x";
 
 
 #define KUID_BASE 621924480
 #define MYUID_BASE 100000
 #define KUID_MAX 1554823197 + MYUID_BASE
 
-
 const char base36[] = {'0','1','2','3','4','5','6','7','8',    \
                        '9','a','b','c','d','e','f','g','h',    \
                        'i','j','k','l','m','n','o','p','q',    \
                        'r','s','t','u','v','w','x','y','z'};
 
-int
-to_base_36(unsigned int uid, char buffer[], int buflen)
-{
-  int i = 0;
+int to_base_36(unsigned long uid, char buffer[], int buflen) {
   int rem = 0;
 
-  if (!(uid <= INT_MAX))
+  if (!(uid <= LONG_MAX))
     return -1;
 
-  while (uid > 0 && i < buflen)
-    {
+  // Size of 64-bit LONG_MAX in base36 + 1
+  char tmpbuf[14];
+  memset(tmpbuf, 0, 14);
+  int tmpbuflen = 14;
+
+  int i = tmpbuflen - 1;
+  tmpbuf[i--] = '\0';
+  while (uid > 0 && i >= 0) {
       rem = uid % 36;
       uid = uid / 36;
-      buffer[i++] = base36[rem];
+      tmpbuf[i--] = base36[rem];
     }
+  int size = tmpbuflen - (i + 1);
   // Check that nothing is left of our number and
   // that we have enough buffer space to \0-terminate
-  printf("%d\n", buflen);
-  if (((buflen) - i > 0) && uid == 0)
-    {
-      buffer[i] = '\0';
-      return 0;
+  printf("%d\n", size);
+  if ((buflen - size >= 0) && uid == 0) {
+    // Copy reversed string to start of return buffer
+    strncpy(buffer, &tmpbuf[i+1], buflen);
+    return 0;
     }
+
+  printf("%d\n", buflen);
   return -1;
 }
 
@@ -70,6 +76,7 @@ int init_buf (struct passwd *pwd, char *buffer,
   SET_ENT(pwd->pw_dir, dir, buffer, sizeof(dir));
   SET_ENT(pwd->pw_shell, shell, buffer, sizeof(shell));
   SET_ENT(pwd->pw_gecos, gecos, buffer, sizeof(gecos));
+  SET_ENT(pwd->pw_passwd, password, buffer, sizeof(password));
 
   return bufpos;
 
@@ -77,8 +84,18 @@ int init_buf (struct passwd *pwd, char *buffer,
   return -1;
 }
 
+int validate_alphanum_kuid(const char* kuid) {
+  int i = 0;
+  while (kuid[i] >= 'a' && kuid[i] <= 'z' && i < 3)
+    i++;
+  int j = 0;
+  while (kuid[3 + j] >= '0' && kuid[3 + j] <= '9' && j < 3)
+    j++;
+  return i + j - 6;
+}
+
 int validate_uid(unsigned long uid) {
-  if (!(uid > MYUID_BASE && uid < KUID_MAX)) {
+  if (!(uid >= MYUID_BASE && uid <= KUID_MAX)) {
     return -1;
   }
   return 0;
@@ -93,29 +110,28 @@ enum nss_status _nss_base36_endpwent (void) {
 }
 
 enum nss_status _nss_base36_getpwnam_r(const char *name,
-                                         struct passwd *result,
-                                         char *buffer, size_t buflen,
-                                         int *errnop) {
+                                       struct passwd *result,
+                                       char *buffer, size_t buflen,
+                                       int *errnop) {
   int name_len = strlen(name);
-
-  printf("base36 reporting in a %s\n", name);
-
   if (name_len != 6) {
     goto enoent;
   }
-  printf("base36 reporting in b %s\n", name);
+
+  if (validate_alphanum_kuid(name) != 0) {
+    goto enoent;
+  }
+
   unsigned long uid = strtoul(name, NULL, 36) - KUID_BASE + MYUID_BASE;
   if (validate_uid(uid) < 0) {
     goto enoent;
   }
-  printf("base36 reporting in c %s\n", name);
 
   // Current position counter
   int bufpos;
   if ((bufpos = init_buf(result, buffer, buflen)) <  0) {
     goto erange;
   }
-  printf("base36 reporting in d %s\n", name);
 
   SET_ENT(result->pw_name, name, buffer, name_len);
   result->pw_uid = (int) uid;
@@ -135,7 +151,8 @@ enum nss_status _nss_base36_getpwnam_r(const char *name,
 }
 
 enum nss_status _nss_base36_getpwuid_r(uid_t uid, struct passwd *result,
-                         char* buffer, size_t buflen, int *errnop) {
+                                       char* buffer, size_t buflen,
+                                       int *errnop) {
 
   if (validate_uid(uid) != 0) {
     goto enoent;
@@ -152,6 +169,10 @@ enum nss_status _nss_base36_getpwuid_r(uid_t uid, struct passwd *result,
     goto enoent;
   }
 
+  if (validate_alphanum_kuid((const char*) name)) {
+    goto enoent;
+  }
+
   int name_len = strlen(name);
 
   int bufpos;
@@ -161,7 +182,7 @@ enum nss_status _nss_base36_getpwuid_r(uid_t uid, struct passwd *result,
 
   SET_ENT(result->pw_name, name, buffer, name_len);
   result->pw_uid = uid;
-  result->pw_uid = 42;
+  result->pw_gid = 42;
 
   return NSS_STATUS_SUCCESS;
 
@@ -173,15 +194,3 @@ enum nss_status _nss_base36_getpwuid_r(uid_t uid, struct passwd *result,
   *errnop = ERANGE;
   return NSS_STATUS_TRYAGAIN;
 }
-
-/*int main() {
-  char uname[7];
-  //int ret =  to_base_36(621931145, uname, 7);
-  int ret =  to_base_36(35, uname, 7);
-  if (ret != 0) {
-    printf("error\n");
-  } else {
-    puts(uname);
-  }
-  return 0;
-  }*/
