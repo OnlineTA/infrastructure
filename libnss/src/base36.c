@@ -36,10 +36,7 @@ const char base36[] = {'0','1','2','3','4','5','6','7','8',    \
 int to_base_36(unsigned long uid, char buffer[], int buflen) {
   int rem = 0;
 
-  if (!(uid <= LONG_MAX))
-    return -1;
-
-  // Size of 64-bit LONG_MAX in base36 + 1
+  // Size of 64-bit ULONG_MAX in base36 + 1
   const int tmpbuflen = 14;
   char tmpbuf[tmpbuflen];
   memset(tmpbuf, 0, tmpbuflen);
