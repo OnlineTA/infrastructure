@@ -1,13 +1,15 @@
-#include <nss.h> // nss_status
-#include <pwd.h> // struct passwd
+#include <nss.h>    // nss_status
+#include <pwd.h>    // struct passwd
 #include <stdlib.h> // strtoul
-#include <errno.h> // errno
+#include <errno.h>  // errno
 #include <string.h> // strncpy
-#include <limits.h> //INT_MAX
+#include <limits.h> // INT_MAX
 
 #include <stdio.h>
 
 #define SC sizeof(char)
+
+#define SIZEOF_KUID 7
 
 #define SET_ENT(to, src, dst, len)                  \
   if (bufpos + SC*len + SC > buflen)                \
@@ -18,11 +20,10 @@
   bufpos = bufpos + SC;
 
 
-const char shell[] = "/bin/false";
-const char dir[] = "/tmp";
-const char gecos[] = ",,,,";
-const char password[] = "x";
-
+static const char shell[] = "/bin/false";
+static const char dir[] = "/tmp";
+static const char gecos[] = ",,,,";
+static const char password[] = "x";
 
 #define KUID_BASE 621924480
 #define MYUID_BASE 100000
@@ -80,14 +81,35 @@ int init_buf (struct passwd *pwd, char *buffer,
   return -1;
 }
 
-int validate_alphanum_kuid(const char* kuid) {
-  int i = 0;
-  while (kuid[i] >= 'a' && kuid[i] <= 'z' && i < 3)
-    i++;
-  int j = 0;
-  while (kuid[3 + j] >= '0' && kuid[3 + j] <= '9' && j < 3)
-    j++;
-  return i + j - 6;
+/** Check whether pointee is a valid, null-terminated kuid.
+ *
+ * A valid kuid matches the regex ^[a-z]{3}[0-9]{3}$.
+ *
+ * Return 0 if pointee is a valid kuid, and -1 otherwise.
+ **/
+int
+validate_alphanum_kuid(const char* ptr) {
+  int i;
+
+  for (i = 0; i < 3; ++i, ++ptr) {
+    if (*ptr < 'a' || *ptr > 'z') {
+      return -1;
+    }
+  }
+  // ptr should now point to first digit.
+
+  for (i = 0; i < 3; ++i, ++ptr) {
+    if (*ptr < '0' || *ptr > '9') {
+      return -1;
+    }
+  }
+  // ptr should now point to null-byte.
+
+  if (*ptr) {
+    return -1;
+  }
+
+  return 0;
 }
 
 int validate_uid(unsigned long uid) {
@@ -109,11 +131,6 @@ enum nss_status _nss_base36_getpwnam_r(const char *name,
                                        struct passwd *result,
                                        char *buffer, size_t buflen,
                                        int *errnop) {
-  int name_len = strlen(name);
-  if (name_len != 6) {
-    goto enoent;
-  }
-
   if (validate_alphanum_kuid(name) != 0) {
     goto enoent;
   }
@@ -129,7 +146,7 @@ enum nss_status _nss_base36_getpwnam_r(const char *name,
     goto erange;
   }
 
-  SET_ENT(result->pw_name, name, buffer, name_len);
+  SET_ENT(result->pw_name, name, buffer, SIZEOF_KUID);
   result->pw_uid = (int) uid;
   result->pw_gid = 42; // TODO
 
