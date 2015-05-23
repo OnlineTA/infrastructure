@@ -85,7 +85,7 @@ int init_buf (struct passwd *pwd, char *buffer,
  *
  * A valid kuid matches the regex ^[a-z]{3}[0-9]{3}$.
  *
- * Return 0 if pointee is a valid kuid, and -1 otherwise.
+ * Return 0 if pointee is valid and null-terminated, and -1 otherwise.
  **/
 int
 validate_alphanum_kuid(const char* ptr) {
