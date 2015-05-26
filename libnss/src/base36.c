@@ -196,7 +196,8 @@ enum nss_status _nss_base36_getpwuid_r(uid_t uid, struct passwd *result,
 
   SET_ENT(result->pw_name, name, buffer, name_len);
   result->pw_uid = uid;
-  result->pw_gid = 42;
+  // Just set to nobody for now
+  result->pw_gid = 65534;
 
   return NSS_STATUS_SUCCESS;
 
