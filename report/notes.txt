@@ -1,14 +1,17 @@
 Analasys
  - Why
  - What do we want to achieve
- - Securing privileged operations 
  - Principles
    - Minimum permissions
    - Processes dropping permissions when no longer needed
-   - Filtering system calls
+   - Filtering system calls (seccomp)
    - Container breaches causes exposes minimal rights to container owner
-   - Base36 conversion
+   - User management
+      - Anonymous (UID pool)
+      - Onymous/Person identified (Base36 conversion)
  - Containerization
+   - Security roles
+     - TA's and teachers is allowed to have elevated permissions compared to students
    - Security aspects of docker vs. sandstone
      - Sandstone: more minimal permissions
      - ``built for purpose''
