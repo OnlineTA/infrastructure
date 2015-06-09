@@ -6,10 +6,13 @@ NSSLIB=libnss_$(NAME).so.2
 all: lib
 
 lib: $(NAME).c
-	$(CC) $(CFLAGS) -shared -o $(NSSLIB) -Wl,-soname,$(NSSLIB) $(NAME).c
+	$(CC) $(CFLAGS) -shared -Wl,-soname,"$(NSSLIB)" "$(NAME).c"
+
+clean:
+	rm -f "$(NSSLIB)"
 
 install: uninstall
-	cp $(NSSLIB) /lib64/
+	cp "$(NSSLIB)" /lib64/
 
 uninstall:
-	rm -rf /lib64/$(NSSLIB)
+	rm -rf "/lib64/$(NSSLIB)"
