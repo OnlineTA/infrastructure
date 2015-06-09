@@ -1,5 +1,5 @@
 CC=gcc
-CFLAGS=-Wall -Wextra -Werror -pedantic -std=gnu11 -fPIC
+CFLAGS=-Wall -Wextra -Werror -pedantic -std=gnu11 -fpic
 NAME=base36
 NSSLIB=libnss_$(NAME).so.2
 
