@@ -6,7 +6,7 @@ NSSLIB=libnss_$(NAME).so.2
 all: lib
 
 lib: $(NAME).c
-	$(CC) $(CFLAGS) -shared -Wl,-soname,"$(NSSLIB)" -o "$(NSSLIB)" "$(NAME).c"
+	$(CC) $(CFLAGS) -shared -Wl,-soname,"$(NSSLIB)" -o "$(NSSLIB)" $(NAME).c
 
 clean:
 	rm -f "$(NSSLIB)"
