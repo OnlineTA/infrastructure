@@ -1,0 +1,27 @@
+Analasys
+ - Why
+ - What do we want to achieve
+ - Securing privileged operations 
+ - Principles
+   - Minimum permissions
+   - Processes dropping permissions when no longer needed
+   - Filtering system calls
+   - Container breaches causes exposes minimal rights to container owner
+   - Base36 conversion
+ - Containerization
+   - Security aspects of docker vs. sandstone
+     - Sandstone: more minimal permissions
+     - ``built for purpose''
+     - Docker: Standardized deployment
+     - Dockerfiles
+     - Reviewed codebases
+Design
+ - Means
+   - Separations of processes
+   - Clearly defined process purpose
+   - Minimal APIs for interfacing
+ - How
+Evaluation
+ - State of evaluation
+ - Performance
+ - 

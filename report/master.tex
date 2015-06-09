@@ -1,0 +1,102 @@
+\documentclass[a4paper,11pt]{memoir}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[danish,english]{babel}
+\usepackage[urw-garamond]{mathdesign}
+\usepackage{minted}
+\usepackage{graphicx}
+\usepackage[status=draft]{fixme}
+\usepackage{amsthm}
+\usepackage{xcolor}
+\usepackage{amsmath}
+\usepackage{wallpaper}
+%\usepackage{changepage}
+\usepackage[margin=10pt,font=small,labelfont=bf,labelsep=endash]{caption}
+
+\usepackage[
+  backend=biber,
+  backref=true,
+  style=numeric,
+  sorting=none,
+  citestyle=numeric]{biblatex}
+\addbibresource{citations.bib}
+
+\definecolor{mycolor1}{HTML}{00507E}
+\usepackage[
+  pdfauthor={Truls Asheim},
+  pdftitle={Designing Infrastructure for an OnlineTA},
+  colorlinks=true,
+  linkcolor=mycolor1,
+  citecolor=mycolor1,
+  urlcolor=mycolor1,
+  filecolor=mycolor1]{hyperref}
+\usepackage[noabbrev,nameinlink]{cleveref}
+
+% Convert our figures
+\immediate\write18{make svgfigures}
+
+% Set up captions
+%\captionnamefont{\small\bfseries}
+%\captiontitlefont{\small}
+%\captionwidth{0.8\linewidth}
+8
+% enumerate subsections
+\setsecnumdepth{subsection}
+
+\fxsetup{margin}
+
+\theoremstyle{definition}
+\newtheorem{property}{Property}
+
+%\title{Implementing high performance Synchronous Message Exchange\\
+%       University of Copenhagen}
+%\author{Truls Asheim \texttt{<truls@asheim.dk>}}
+%\date{}
+
+\begin{document}
+\begin{titlingpage}
+\thispagestyle{empty}
+\ULCornerWallPaper{1}{img/nat-farve.pdf}
+\ULCornerWallPaper{1}{img/diku-en.pdf}
+\begin{adjustwidth}{-1.75cm}{-1.5cm}
+\vspace*{-1cm}
+\textbf{\huge E} \\
+\vspace*{2.5cm} \\
+\textbf{\Huge Designing infrastructure for an OnlienTA} \\
+%\vspace*{.1cm} \\
+%{\huge An Eventual Consistent Parallel Block Device} \\
+\begin{tabbing}
+  Truls Asheim ~~ \= \texttt{<truls@asheim.dk>} \\[14.3cm]
+  \textbf{\Large Supervisor} \\
+  Ken Friis Larsen \> \texttt{<kflarsen@di.ku.dk>}
+\end{tabbing}
+\end{adjustwidth}
+    %\newpage
+    \ClearWallPaper
+
+\end{titlingpage}
+
+
+\begin{abstract}
+\end{abstract}
+
+\begin{otherlanguage}{danish}
+\begin{abstract}
+\end{abstract}
+\end{otherlanguage}
+\clearpage
+
+\include{introduciton}
+
+
+\printbibliography
+
+\appendix
+
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% TeX-command-extra-options: "-enable-write18"
+%%% End:
