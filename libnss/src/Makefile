@@ -12,7 +12,7 @@ clean:
 	rm -f "$(NSSLIB)"
 
 install: uninstall
-	cp "$(NSSLIB)" /lib64/
+	cp "$(NSSLIB)" /usr/lib/
 
 uninstall:
-	rm -rf "/lib64/$(NSSLIB)"
+	rm -rf "/usr/lib/$(NSSLIB)"
