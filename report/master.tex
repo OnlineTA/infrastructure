@@ -1,4 +1,4 @@
-\documentclass[a4paper,11pt]{memoir}
+\documentclass[a4paper,11pt,oneside]{memoir}
 
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
@@ -25,7 +25,7 @@
 \definecolor{mycolor1}{HTML}{00507E}
 \usepackage[
   pdfauthor={Truls Asheim},
-  pdftitle={Designing Infrastructure for an OnlineTA},
+  pdftitle={Designing Infrastructure for an Online Teaching Assistant},
   colorlinks=true,
   linkcolor=mycolor1,
   citecolor=mycolor1,
@@ -40,7 +40,7 @@
 %\captionnamefont{\small\bfseries}
 %\captiontitlefont{\small}
 %\captionwidth{0.8\linewidth}
-8
+
 % enumerate subsections
 \setsecnumdepth{subsection}
 
@@ -49,51 +49,61 @@
 \theoremstyle{definition}
 \newtheorem{property}{Property}
 
-%\title{Implementing high performance Synchronous Message Exchange\\
-%       University of Copenhagen}
-%\author{Truls Asheim \texttt{<truls@asheim.dk>}}
-%\date{}
+\title{Designing Infrastructure for an Online Teaching Assistant\\ \hfill \break Bachelor project\\\large Department of Computer Science, University of Copenhagen}
+\author{Truls Asheim \texttt{<truls@asheim.dk>}}
+\date{June 21, 2015}
+
 
 \begin{document}
-\begin{titlingpage}
-\thispagestyle{empty}
-\ULCornerWallPaper{1}{img/nat-farve.pdf}
-\ULCornerWallPaper{1}{img/diku-en.pdf}
-\begin{adjustwidth}{-1.75cm}{-1.5cm}
-\vspace*{-1cm}
-\textbf{\huge E} \\
-\vspace*{2.5cm} \\
-\textbf{\Huge Designing infrastructure for an OnlienTA} \\
-%\vspace*{.1cm} \\
-%{\huge An Eventual Consistent Parallel Block Device} \\
-\begin{tabbing}
-  Truls Asheim ~~ \= \texttt{<truls@asheim.dk>} \\[14.3cm]
-  \textbf{\Large Supervisor} \\
-  Ken Friis Larsen \> \texttt{<kflarsen@di.ku.dk>}
-\end{tabbing}
-\end{adjustwidth}
-    %\newpage
-    \ClearWallPaper
 
+%\begin{titlingpage}
+%\thispagestyle{empty}
+%\ULCornerWallPaper{1}{img/nat-farve.pdf}
+%\ULCornerWallPaper{1}{img/diku-en.pdf}
+%\begin{adjustwidth}{-1.75cm}{-1.5cm}
+%\vspace*{-1cm}
+%\textbf{\huge Project} \\
+%\vspace*{2.5cm} \\
+%\textbf{\Huge Designing infrastructure for an OnlienTA} \\
+%\vspace*{.1cm} \\
+%\begin{tabbing}
+%  Truls Asheim ~~ \= \texttt{<truls@asheim.dk>} \\[14.3cm]
+%  \textbf{\Large Supervisor} \\
+%  Ken Friis Larsen \> \texttt{<kflarsen@di.ku.dk>}
+%\end{tabbing}
+%\end{adjustwidth}
+    %\newpage
+\ClearWallPaper
+
+%\end{titlingpage}
+
+\begin{titlingpage}
+\maketitle
 \end{titlingpage}
 
 
-\begin{abstract}
-\end{abstract}
+%\begin{abstract}
+%\end{abstract}
+%\begin{otherlanguage}{danish}
+%\begin{abstract}
+%\end{abstract}
+%\end{otherlanguage}
 
-\begin{otherlanguage}{danish}
-\begin{abstract}
-\end{abstract}
-\end{otherlanguage}
+\tableofcontents
+
 \clearpage
 
-\include{introduciton}
+\include{introduction}
+\include{analysis}
+\include{design}
+\include{measurements}
+\include{discussion}
 
 
 \printbibliography
 
 \appendix
-
+\end{document}
 
 %%% Local Variables:
 %%% mode: latex

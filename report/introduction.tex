@@ -1,28 +1,50 @@
 \chapter{Introduction}
 In this report, we will describe the design and implementation of an
-infrastructure for the submission and automated correction of student
-assignment.
+infrastructure for a system facilitating submission and automated
+correction of student assignments.
+
+A Master's project carried out in the spring of 2014 has laid the
+foundation for this work by discussing the intricate aspects of
+performing automated assessment of assignments\cite{onlineta}. This
+work builds upon the previous project by describing an infrastructure
+for a complete system supporting the submission and automated
+assessment of assignments \fxnote{Rewrite last part}
 
 \section{Background and motivation}
-As a result of a university reform recently passed by the Danish
-goverment, students are being pushed faster through their university
-education. One of the consequences of this is that student TA's are
-becoming harder to find since students can no longer find the time to
-act as TA's alongside their studies.
+As a result of the study progress reform recently passed by the Danish
+parliament, students are required to finish their university studies
+faster than previously. A consequence of this, is that many students
+can no longer find the time to act as TA's alongside their studies.
 
 This has sparked a general interest at DIKU\footnote{Department of
-  Computer Science, University of Copenhagen} to take advantage of
-automated assignment correction systems with the purpose of reducing
-the workload burdening student TA's.
+  Computer Science, University of Copenhagen} to investigate
+implementing an automated assignment assessment system in order to
+reduce the workload of student TA's.
 
-Since many courses in Computer Science (CS) asks students to complete
-a large amount of programming homework, Computer Science(CS) finds
-itself in a unique position to take advantage of automated assignment
-correction systems Compared to many other fields of study.
+Since the assignments of many Computer Science courses require
+students to complete programming homework, Computer Science finds
+itself in a unique position with regard to take advantage of automated assignment
+assessment systems.
 
-The system that this report will describe is only intended as a
-support for TA's and will not replace the work that they perform
-entirely. 
+The system that we here will describe does not intend to replace TA's
+entirely, but rather automating the tedious of compiling an executing
+student programs. Human involvement is still needed to asses
+submissions as a whole.
+
+An additional goal of this system is to act as pedagogical support for
+students while they are solving their assignments. 
+
+\section{Terminology}
+We shall describe some of the terminology that we will use henceforth
+in the report. This section is intended to clarify the
+contexts-specific interpretation of terms from which ambiguities could
+otherwise arise. \fxnote{Is this section even needed?}
+
+\begin{description}
+  \item[Assignment] Is given to students by course responsibles and
+    contains what you would exect.
+  \item[Evaluator] An evaluator is
+\end{description}
 
 \section{Related works}
 
@@ -30,7 +52,7 @@ entirely.
 
 
 %%% Local Variables:
-%%% mode: late
+%%% mode: latex
 %%% TeX-master: "master"
 %%% TeX-command-extra-options: "-enable-write18"
 %%% End:

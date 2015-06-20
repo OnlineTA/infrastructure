@@ -1,0 +1,59 @@
+\chapter{Measurements}
+A goal of this project is to determine the serer capacity required by
+the OnlineTA system. Since the current implementation is not yet at a
+state where we can reliably perform such measurements, we will instead
+focus om describing measurements which can be performed on the final
+implementation in order to assess the server capacity requirements.
+
+%Furthermore, as the design that we have proposed offers seamless
+%horizontal scaling, we
+
+\section{Metrics of submission assessment}
+In order to know what benchmarks to conduct we need to establish the
+performance metrics that we can use to estimate the expected
+performance of our system.
+
+
+%\begin{description}
+%\item[Network bandwidth requirements]
+%\item[Disk space requirements]
+%\item[Disk IO]
+%\item[Memory requirements]
+%\item[CPU performance]
+%\end{description}
+
+\section{Performance thresholds}
+In order to prevent making overestimated hosting recommendations it's
+important to establish acceptable thresholds for assignment
+throughput. A system that is scaled toward delivering assessments "`as
+fast as possible"' under any circumstance will have significantly
+different requirements that a system where we accept queuing of
+assignments, and thus delaying assessments, during peak load.
+
+The perceived usefulness of the system and overall student
+satisfaction will depend greatly on striking the right balance between
+acceptable assessment throughput thresholds and cost of hardware
+deployments.
+
+\section{System scaling requirements}
+As our initial scope is limited to performing assessment of
+the assignments of DIKU coursess, we can develop an
+idea of how large our assignment throughput needs to be fairly easily. E.g if we
+have 100 students enrolled in the introductory programming course, we
+can calculate an upper bound on the amount of resources
+consumed. This can be done by calculating the expected resource
+requirements for each assignment in the course. Our required
+throughput is then 
+
+\section{Estimating static requirements}
+We define static requirements as resources that scales linearily wuth
+an assignment, e.g. if we need to estimate the requried
+
+
+
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "master"
+%%% TeX-command-extra-options: "-enable-write18"
+%%% End:

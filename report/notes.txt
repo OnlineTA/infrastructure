@@ -6,7 +6,7 @@ Analasys
    - Processes dropping permissions when no longer needed
    - Filtering system calls (seccomp)
    - Container breaches causes exposes minimal rights to container owner
-   - User management
+   - User managemebt
       - Anonymous (UID pool)
       - Onymous/Person identified (Base36 conversion)
  - Containerization

@@ -2,12 +2,16 @@
  "master"
  (lambda ()
    (TeX-add-to-alist 'LaTeX-provided-class-options
-                     '(("memoir" "a4paper" "11pt")))
+                     '(("memoir" "a4paper" "11pt" "oneside")))
    (TeX-add-to-alist 'LaTeX-provided-package-options
-                     '(("inputenc" "utf8") ("fontenc" "T1") ("babel" "danish" "english") ("mathdesign" "urw-garamond") ("fixme" "status=draft") ("caption" "margin=10pt" "font=small" "labelfont=bf" "labelsep=endash") ("biblatex" "backend=biber" "backref=true" "style=numeric" "sorting=none" "citestyle=numeric") ("hyperref" "pdfauthor={Truls Asheim}" "pdftitle={Designing Infrastructure for an OnlineTA}" "colorlinks=true" "linkcolor=mycolor1" "citecolor=mycolor1" "urlcolor=mycolor1" "filecolor=mycolor1") ("cleveref" "noabbrev" "nameinlink")))
+                     '(("inputenc" "utf8") ("fontenc" "T1") ("babel" "danish" "english") ("mathdesign" "urw-garamond") ("fixme" "status=draft") ("caption" "margin=10pt" "font=small" "labelfont=bf" "labelsep=endash") ("biblatex" "backend=biber" "backref=true" "style=numeric" "sorting=none" "citestyle=numeric") ("hyperref" "pdfauthor={Truls Asheim}" "pdftitle={Designing Infrastructure for an Online Teaching Assistant}" "colorlinks=true" "linkcolor=mycolor1" "citecolor=mycolor1" "urlcolor=mycolor1" "filecolor=mycolor1") ("cleveref" "noabbrev" "nameinlink")))
    (TeX-run-style-hooks
     "latex2e"
-    "introduciton"
+    "introduction"
+    "analysis"
+    "design"
+    "measurements"
+    "discussion"
     "memoir"
     "memoir11"
     "inputenc"
