@@ -1,4 +1,4 @@
-\chapter{System Architecture}
+\chapter{System Architecture Design}
 In this chapter, we propose a design for our system. We will use the
 principles that we laid down in the previous chapter and present them
 as a part of an integrated system
@@ -7,27 +7,33 @@ as a part of an integrated system
 With security as the, as previously stated, principal goal, we focus
 our design around several small processes, each with a well defined
 purpose and interactions. We furthermore enforce a principle of
-minimum permissions across our entire system. This means that we eill 
+minimum permissions across our entire system.
+
+\subsection{Container support}
+The design of the system enables the containerization model to be
+swapped, such that different containers can be used based on
+
 
 \section{Users}
 There are two levels of users in the OnlineTA system. One is the user
 owning the daemons responsible for handling the main assessment flow,
 and the other is the users owning the submissions. In the case of
-anonymous submissions 
+anonymous submissions
 
-\subsection{Representing systems on users}
-Name lookup services in GNU/Linux systems are handled by the NSS (Name
-Service Switch) subsystem which is implemented in the Gnu glibc library. The NSS
-service is responsible for handling the mapping of several system
-resources including domain names, user names and password files. The
-NSS system is extensible through providers which is called in the
-order specified by the \texttt{nssswitch.conf} file. In the OnlineTA
-system, we add a password mapping module which can be used for looking
-up user names to UIDs and vice-verca\cite{nss}.
+\subsection{Representing users on system}
+Name service lookup services in GNU/Linux systems are provided by the
+NSS (Name Service Switch) subsystem which is implemented in the Gnu
+glibc library. Lookup databases include users, groups and DNS
+names. The NSS system provides a unified interface for performing
+lookups in a database backed by multiple services. The NSS system is
+extensible through services which is called in the order specified by
+the \texttt{nssswitch.conf} file. In the OnlineTA system, we add a
+password mapping module which can be used for looking up user names to
+UIDs and vice-verca\cite{nss}.
 
 This allows us to represent our dynamically created users on the Linux
-system and thus avoid having to fill all of them into an extremely
-long /etc/passwd file.
+system and thus avoid having to define them statically in the
+/etc/passwd file.
 
 We perform user handling in two separate NSS modules for handling
 named an anonymous submission respectively. The usernames of
@@ -40,51 +46,15 @@ differently through a different NSS module. This module works on lists
 of preallocated users and is autonomously responsible for maintaining
 lists of allocated and non-allocated users \fxnote{rewrite}
 
-
-\section{Interactions}
-The scope of the current implementation is limited to supporting
-direct interactions via a web browser, however, the additional modes
-of interaction previously described can be implemented on top of the
-interface that we will describe in this section.
-
-In the current design, all interactions with the system occurs over a
-secure HTTP connection. We use the first part of the request URI to
-determine which action is requested by the user while subsequent URI
-components are used as parameters for that request. The system
-supports the following actions:
-
-\begin{description}
-
-\item[\texttt{/}] This URI can be issued as a HTTP GET request and
-  will return the main index page which will contain a list of courses
-  and assignments availiable on that server
-\item[\texttt{/submit/<course>/<assignment>/}] When a HTTP POST
-    request is issued to this URL it will be handled as an anonymous
-    submission. If the submission is accepted, the fronted will
-    repsond with a page showing the assigned submission UUID. This
-    UUID can then be used in order to retrieve assessments once they
-    are completed
-\item[\texttt{/submit/<course>/<assignment>/<KU-username>}] This
-  request type is the same as the previous except that it will perform
-  an authenticated submission.
-\item[\texttt{/query/<uuid>}] Used to query assessment status of
-  assignment identified by given UUID. The status of an assignment can
-  be the following ACCEPTED The assignment has been accepted and is
-  awaiting schediling QUEUED The assignment has been picked up by the
-  scheduler and is awaiting prioirization TODO
-\item[\texttt{/assessment/<uuid>}] Retrieves the assessment of a
-  submission if availible
-\end{description}
-
-\subsection{Relaying assessment to user}
-TODO: Describe what happens when a user requests an assessment.
-
 \section{Components}
-The components that our design is separated into are the following:
+Our proposed design for the OnlineTA system is split onto a number of
+different components which are described in this section. Their
+relationship is shown in \cref{fig:arch}.
 
 \begin{figure}
 \centering
-\includegraphics[width=\textwidth]{figures/arch}
+\includegraphics[width=\textwidth]{figures/arch-crop}
+
 \caption{Flowchart showing interactions between the components of the
   OnlineTA system}
 \label{fig:arch}
@@ -92,7 +62,7 @@ The components that our design is separated into are the following:
 
 \paragraph{Frontend}
 The frontend is responsible for accepting submissions. In case of
-authenticated submissions it is also responsible for verifying the
+attributed submissions it is also responsible for verifying the
 identity of the user submitting the assignment. It will also perform
 the initial storage of the submission. Furthermore, the frontend is
 responsible for returning the assessment to the student.
@@ -103,7 +73,8 @@ assignment.
 The frontend has the following roles
 \begin{itemize}
 \item Accepting submissions from the HTTP proxy
-\item Verify GPG signature of submission if authenticated
+\item Verify GPG signature of assignment to verify submission
+  attribution
 \item Generating and assigning a UUID to the submission
 \item Writing the initial metadata file
 \item Creating directory for containing the submission and setting
@@ -151,6 +122,49 @@ The special capabilities required by the Worker process are
 
 \paragraph{Assessment units}
 An assessment unit handles the actual assessment of an assignment... TODO
+
+\section{System flow}
+Describe what happens after a student submits an assignment, that is,
+what is the individual role of each of the components and what is the 
+
+
+\section{Interactions}
+The scope of the current implementation is limited to supporting
+direct interactions via a web browser, however, the additional modes
+of interaction previously described can be implemented on top of the
+interface that we will describe in this section.
+
+In the current design, all interactions with the system occurs over a
+secure HTTP connection. We use the first part of the request URI to
+determine which action is requested by the user while subsequent URI
+components are used as parameters for that request. The system
+supports the following actions:
+
+\begin{description}
+
+\item[\texttt{/}] This URI can be issued as a HTTP GET request and
+  will return the main index page which will contain a list of courses
+  and assignments availiable on that server
+\item[\texttt{/submit/<course>/<assignment>/}] When a HTTP POST
+    request is issued to this URL it will be handled as an anonymous
+    submission. If the submission is accepted, the fronted will
+    repsond with a page showing the assigned submission UUID. This
+    UUID can then be used in order to retrieve assessments once they
+    are completed
+\item[\texttt{/submit/<course>/<assignment>/<KU-username>}] This
+  request type is the same as the previous except that it will perform
+  an attributed submission.
+\item[\texttt{/query/<uuid>}] Used to query assessment status of
+  assignment identified by given UUID. The status of an assignment can
+  be the following ACCEPTED The assignment has been accepted and is
+  awaiting schediling QUEUED The assignment has been picked up by the
+  scheduler and is awaiting prioirization TODO
+\item[\texttt{/assessment/<uuid>}] Retrieves the assessment of a
+  submission if availible
+\end{description}
+
+\subsection{Relaying assessment to user}
+TODO: Describe what happens when a user requests an assessment.
 
 \section{Storage}
 In our current design, availability of persistent local disk storage

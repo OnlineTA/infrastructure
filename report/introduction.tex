@@ -3,6 +3,14 @@ In this report, we will describe the design and implementation of an
 infrastructure for a system facilitating submission and automated
 correction of student assignments.
 
+Unfortunately, some of the learning objectives proved overly ambitious
+for the time frame that we had available. In particular, we had hoped
+that our proof of concept implementation would be in a much more
+complete than it currently is. This impairs our ability to present
+firm conclusions but we do, however, expect that the design and
+testing methodologies described provides a solid starting point for
+such conclusions to be drawn at a later point.
+
 A Master's project carried out in the spring of 2014 has laid the
 foundation for this work by discussing the intricate aspects of
 performing automated assessment of assignments\cite{onlineta}. This
@@ -13,13 +21,13 @@ assessment of assignments \fxnote{Rewrite last part}
 \section{Background and motivation}
 As a result of the study progress reform recently passed by the Danish
 parliament, students are required to finish their university studies
-faster than previously. A consequence of this, is that many students
+faster than previously\cite{reform}. A consequence of this, is that many students
 can no longer find the time to act as TA's alongside their studies.
 
 This has sparked a general interest at DIKU\footnote{Department of
   Computer Science, University of Copenhagen} to investigate
 implementing an automated assignment assessment system in order to
-reduce the workload of student TA's.
+reduce the workload for teachers and teaching assistants TA's.
 
 Since the assignments of many Computer Science courses require
 students to complete programming homework, Computer Science finds
@@ -31,22 +39,27 @@ entirely, but rather automating the tedious of compiling an executing
 student programs. Human involvement is still needed to asses
 submissions as a whole.
 
-An additional goal of this system is to act as pedagogical support for
-students while they are solving their assignments. 
+An additional goal of this systeom is to be used as an Intelligent
+Tutoring System (ITS)\cite{Freedman:2000:LIT:350752.350756} which can
+provide support for students while they are solving their assignments.
 
-\section{Terminology}
-We shall describe some of the terminology that we will use henceforth
-in the report. This section is intended to clarify the
-contexts-specific interpretation of terms from which ambiguities could
-otherwise arise. \fxnote{Is this section even needed?}
+%\section{Terminology}
+%We shall describe some of the terminology that we will use henceforth
+%in the report. This section is intended to clarify the
+%contexts-specific interpretation of terms from which ambiguities could
+%otherwise arise. \fxnote{Is this section even needed?}
 
-\begin{description}
-  \item[Assignment] Is given to students by course responsibles and
-    contains what you would exect.
-  \item[Evaluator] An evaluator is
-\end{description}
+%\begin{description}
+%  \item[Assignment] Is given to students by course responsibles and
+%    contains what you would exect.
+%  \item[Evaluator] An evaluator is
+%\end{description}
 
-\section{Related works}
+\section{Related work}
+Tools for performing automated assessment of programming assignments
+is currently an actively researched topic. As a result of this, a
+large number of systems for performing this task has emerged over the
+years \cite{Ihantola:2010:RRS:1930464.1930480}.
 
 
 
