@@ -46,7 +46,7 @@ conversion scheme previously described.
 We handle the usernames of anonymous submissions slightly
 differently through a different NSS module. This module works on lists
 of preallocated users and is autonomously responsible for maintaining
-lists of allocated and non-allocated users \fxnote{rewrite}
+lists of allocated and non-allocated users.% \fxnote{rewrite}
 
 \section{Storage}
 In our current design, availability of persistent local disk storage
@@ -67,7 +67,7 @@ is as follows (\cref{fig:filetree}):
   scheduled it is moved away from this directory
 \item{\texttt{accepted}} This directory holds metadata files which has
   been accepted for processing. The separation of incoming and
-  accepted metadata files is needed due to limitations of inotify \fxnote{elaborate}
+  accepted metadata files is needed due to limitations of inotify. %\fxnote{elaborate}
 \end{description}
 
 %\fxnote{Make actual figure}
@@ -148,7 +148,8 @@ The frontend has the following roles
 \item Generating and assigning a UUID to the submission
 \item Writing the initial metadata file
 \item Creating directory for containing the submission and setting
-  ownership of files \fxnote{It would be nice to state that the "work queue" is just a folder of folders, each owned by the respective user that made the submission.}
+  ownership of files.
+%\fxnote{It would be nice to state that the "work queue" is just a folder of folders, each owned by the respective user that made the submission.}
 \end{itemize}
 
 This component require the \texttt{CAP\_CHOWN} capability and write
@@ -196,7 +197,9 @@ The special capabilities required by the Worker process are
 \texttt{CAP\_SYSADM}, \texttt{CAP\_SUID} and \texttt{CAP\_SETPCAP}
 
 \paragraph{Assessment units}
-An assessment unit handles the actual assessment of an assignment. 
+An assessment unit contains the actual scripts for performing the
+assessment. It is executed within a sandbox and is owned by the user
+who made the submission.
 
 %\section{System flow}
 %Describe what happens after a student submits an assignment, that is,
@@ -250,11 +253,10 @@ supports the following actions:
   this request has been performed.
 \end{description}
 
-\subsection{Relaying assessment to user}
-
-
-
-TODO: Describe what happens when a user requests an assessment.
+%\subsection{Relaying assessment to user}
+%$Since one of our design principles is that the files of a submission
+%is owned by the user who sub
+%TODO: Describe what happens when a user requests an assessment.
 
 %\section{Interfaces}
 
