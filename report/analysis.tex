@@ -50,9 +50,36 @@ TODO: We assume that students can not be trusted
 \subsection{Teacher}
 TODO: We assume that teachers can be trusted
 
+\section{Assignment types}
+Types of assignment. Some assignments are complete folders, some
+assingments are just simple files. Some students may prefer to work in
+a straight forward web browser instead of uploading files.
+
+
+\begin{verbatim}
+There are also various types of assignment. Covering this would better
+introduce the next section where you talk about the various phases
+that there can be to the assessment of a submission.
+
+Different assignment types:
+
+    Submit a byte stream, e.g. input from a multiple-choice interface (including free-form text fields).
+    Submit a file.
+    Submit an archive.
+
+For each of those we may want to:
+
+    Validate the structure of the submission.
+    Check that they are not cheating or trying to game the system.
+    Interpret some part of their submission as code and run it.
+    Check that the environment they leave behind after running is valid (e.g. produce a valid file-system in a file-systems assignment in OSM).
+\end{verbatim}
+
+
+
 \section{Assessment flow}
-A submission goes through to phases of assessment; static and dynamic
-testing.
+A submission goes through several phases of assessment categorized as
+either static or dynamic assessment.
 
 The static testing phase assess the static properties of
 submissions. In this phase, submitted code should never be executed
@@ -86,11 +113,29 @@ code and
 In this section we describe the life cycle phases which an assignment
 goes through from submission to the assessment being returned to the
 student. The life cycle of a specific assignment depends on several
-factors. Particularly if we are dealing with an identified or
-anonymous assignment.
+factors. Particularly if we are dealing with an identified oor
+anonymous submission
+
+Common for both types of assignments is that they are assigned a
+Universally Uniqueue ID (UUID) upon submission which will be used to
+identify the assignment for the remainder of its lifecycle.
+
+Along with being able to uniquely identify a submission, we also need
+to 
+
+We could do this by associating a set of metadata items to the
+submission.
+
+An anonymous submission will only exist on the server while the
+assessment is taking place.
+
+An attributed submission, on the other hand, will persist on the
+server for a certain amount of time. This, for instance, could allow
+for repeated submissions to be differentially encoded providing
+bandwidth savings.
 
 
-\section{Submission constituents}
+%\section{Submission constituents}
 
 
 \section{Executing untrusted code}
@@ -117,13 +162,12 @@ confinement which  by enforcing separate
 namespaces for e.g. networking, filesystems and system
 permissions. The Linux kernel provide support or this kind of
 sandboxing through the feature sets
-\texttt{namespaces}\cite{namespaces}, cgroups, rlimit and seccomp..
+\texttt{namespaces}\cite{namespaces}, cgroups, rlimit and seccomp.
 
 There are several well-known "`packaged"' implementations OS-level
 virtualization for Linux which is implemented using the namespaces
-features. In this section we will comparatively evaluate some of these
-and their suitability for our purpose.
-
+features. In this section we will describe a couple of these that has
+been considered for use with OnlineTA.
 
 \subsubsection{Docker}
 Docker is a relatively recent addition to the family of application
@@ -147,7 +191,7 @@ applications, however, mitigates this concern somewhat.
 
 Priviledge escalation vulerabilities has historically been more likely
 to arise from peripheral feature sets (as seen in the recent QEmu
-floppy driver vulnerability \cite{CVE-2015-3456}), rather than the core containment
+floppy driver vulnerability \cite{venom}), rather than the core containment
 functionality itself.
 
 %http://opensource.com/business/15/3/docker-security-future
@@ -180,9 +224,12 @@ feature of Sandstone in this regard is its relative simplicity and the
 limited amount of code used in its implementation.
 
 \subsubsection{Conclusions}
-
-
-The design that we propose later in this report will provide an
+The containers each have their own individual strength and weaknesses
+and both of them are able to serve the purpose for containing the
+assessment process in OnlineTA. However, further practical testing is
+needed draw firm conclusions about their suitability. Such testing is
+enabled by the fact that our design, that we will later present,
+features support for swapping containerization method.
 
 %\section{Privileged operations}
 %The system needs to perform several operations which cannot be
@@ -206,13 +253,17 @@ components to be swapped.
 
 
 \paragraph{Minimum permssions}
+\label{sec:cap}
+
 A common "`best practice"' related to the security aspects of software
 development is to assign a minimalized set of permission to a
 component required by the work that it needs to perform. Traditional
-Unix environments only makes the distinction between a superuser (root)
-and a regular user. It's common for applications to be started with
-full superuser permissions and then, after performing privileged
-actions,resume operations as a unprivileged user.
+Unix environments only makes the distinction between a superuser
+(root) and a regular user. It's common for applications to be started
+with full superuser permissions and then, after performing privileged
+actions,resume operations as a unprivileged user. It's important to
+make sure that a process can never regain the privileges that it has
+dropped.
 
 %This helps
 %mitigating the effects of exploitation of security 
@@ -221,7 +272,7 @@ The sharp separation between superusers and regular users no longer
 exists in model versions of the Linux kernel following the
 introduction of the \textit{Capabilities} interface \cite{cap7}. 
 
-Several operations 
+Capabilities allows individual processes t
 
 \paragraph{Data ownership separation}
 The most basic permission management primitive in Unix operating
@@ -231,12 +282,15 @@ to what is absolutely necessary. A common concern of executing
 applications inside a container is what happens in the unlikely event
 that a process successfully manages to escape the container. In this
 case, the attacker would usually end up having the same permissions as
-the process executing the container.... TODO
+the process executing the container. Therefore, we can mitigate the
+consequences of a potential container escape by making sure that the
+user executing container has access to as few things as possible in
+the wider system.
 
-An important advantage of linux capabilities is that they follow a
-\textit{process} and not the user. This means that an attacker would
-need to exploit, either So even if an attacker manages to
-escape our container, he would 
+%An important advantage of linux capabilities is that they follow a
+%\textit{process} and not the user. This means that an attacker would
+%need to exploit, either So even if an attacker manages to
+%escape our container, he would 
 
 \subsection{Securing special capabilities}
 Despite our best efforts, we can never completely eliminate the
@@ -244,23 +298,25 @@ possibility that an adversary will be able to take advantage of the
 capabilities given to our programs and force them to preform
 unintended actions. For instance, gaining arbitrary code execution in
 a process with the \texttt{chown} capability would allow one to change
+\fxnote{That's also because our programs can't always reduce their privileges (they will need them for later on), so we need to make sure that we both give sufficient, but also not overly lavish capabilities.}
 permissions of any file in the system. Since our security model to a
 large extent relies on users having access to a minimalized set of
 files, we would consider this to be a rather serious security
 incident.
 
-Secure Computing (seccomp) \cite{manpage} is a facility provided by
+Secure Computing (seccomp) \cite{seccomp2} is a facility provided by
 the Linux kernel to provide application sandboxing through the
 filtering of syscalls. It allows an application to unidirectionally
 transition into a secure state where all of its syscalls are filtered
 by specified rules. Building on our example in the previous paragraph,
 we can use the seccomp to filter the \texttt{chown} syscall such that
-it only allows changing the owner of files to UID within an allowed
-range, e.g. $(\text{aaa000})_{36} - (\text(zzz999)_{36})$.
+it only allows changing the owner of files to a UID within an allowed
+range, e.g. $(\text{aaa000})_{36} - (\text(zzz999)_{36})$ and is only
+allowed to change ownership files within the submissions directory.
 
 We can use seccomp to build an extra layer of security around our
-programs which limits the effects of \fxnote{discuss problem of go spawning multiple threads per
-  default somewhere}
+programs which limits the effects of \fxnote{discuss problem of go
+  spawning multiple threads per default somewhere}
 
 
 \section{Handling user identities}
@@ -284,8 +340,8 @@ DIKU. Thus, we can take advantage of the standardized usernames
 assigned to everyone who is in some way associated with the University
 of Copenhagen (KU-usernames), both students and
 employees. KU-usernames are matched by the regular expression
-\texttt{[a-z]\{3\}[0-9]\{3\}}, with the exception that vowels aren't used
-as letters in generated usernames\fxnote{example?}. We can use this
+\texttt{\^[a-z]\{3\}[0-9]\{3\}\$}, with the exception that vowels aren't used
+as letters in generated usernames. We can use this
 username generation scheme to our advantage since we can interpret the
 KU-usernames as base 36 numbers and thus achieve a stateless and
 bidirectional mapping between Linux UIDs and KU-usernames, e.g.:
@@ -301,7 +357,12 @@ $(2^{31})_{10}$.
 \paragraph{Verifying user identity}
 Another ongoing student project are designing and implementing a
 purpose-built GPG key server which are intended to be implemented into
-the OnlineTA system
+the OnlineTA system. The purpose of this key server is to provide a
+mapping between a KU-id and a GPG-key. Since all identified
+submissions are 
+
+At this stage, we have not found a suitable model for supporting group
+submissions
 
 
 \section{Interacting with the system}
@@ -327,8 +388,9 @@ assignment has been signed with the GPG-key belonging to the user
 claiming to have submitted the assignment. This poses a potential
 obstacle when implementing authenticated submissions through the web
 interface. One option, is to require students to GPG sign their
-assignments prior to submission... Talk about WAYF, browser
-certificates, etc...
+assignments prior to submission.
+
+%.. Talk about WAYF, browser ertificates, etc...
 
 Many additional submission interfaces has been proposed since the
 conception of OnlineTA. The prevailing proposal has been to implement
@@ -343,26 +405,12 @@ only transmit deltas between repeated submissions and thus
 significantly reduce upload time and internet bandwidth required for
 submission.
 
-Another submission interface under consideration is Git. We consider
-the addition of 
+Another submission interface under consideration is Git. Since
+revision control systems (primarily git) are already an integrated
+part of the assignment solving workflow of many students, we consider
+eventual addition of git an important goal. Assignment 
 
-
-\section{Large Submissions}
-Some courses may require large submissions which could saturate
-any feasible internet link through only a limited number of concurrent
-uploads. We propose that the upload bandwidth requirement can be
-reduced by applying a delta transfer algorithm on repeated
-submissions.
-
-The rsync algorithm is an abvious candidate for solving this
-problem. However, the alogrim assumes that the receiving end has
-access to all files. Honoring our porperty of minimal user permissions
-the submission receiving process won't have access to the files of the
-previous submissions. We therefore propose a variation of the rsync
-algorithm built for our purpose. Since we cannot rely on being able to
-retrieve the state of the remote files we must be able to keep the
-difference between local and remote files locally. TODO
-
+\fxnote{TODO: Argue why git is nice}
 
 
 

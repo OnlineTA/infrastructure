@@ -5,24 +5,66 @@ state where we can reliably perform such measurements, we will instead
 focus om describing measurements which can be performed of the final
 implementation in order to assess server capacity requirements.
 
+Two of the metrics that we will use to judge the outcome of our
+benchmarks are the following:
+\begin{description}
+\item[Assessment latency] describes the delay between the submission
+  of an assignment until the assessment is ready
+\item[Assessment throughput] describes how many assessments that can
+  be produced within a given time frame.
+\end{description}
+
 %Furthermore, as the design that we have proposed offers seamless
 %horizontal scaling, we
 
-\section{Metrics of submission assessment}
-In order to know what benchmarks to conduct we need to establish the
-performance metrics that we can use to estimate the expected
-performance of our system.
+\section{Purpose}
+Benchmarking this system has two purposes. The first is to determine
+whether the "`baseline"' i.e., best possible, performance of the
+system is acceptable. The second is to determine how many simultaneous
+assessments we can perform without the assessment throughput dropping
+to an unacceptable level.
 
+Based on these two measurements we can a) determine if the
+architecture of the system is fast enough and b) the hardware
+requirements for scaling our system to the required
+level. Additionally, we can determine which hardware components are
+optimal for our purpose, e.g., if disk I/O proves to be a limiting
+factor we should use production hardware featuring Solid State Drives
+(SSDs)
 
-%\begin{description}
-%\item[Network bandwidth requirements]
-%\item[Disk space requirements]
-%\item[Disk IO]
-%\item[Memory requirements]
-%\item[CPU performance]
-%\end{description}
+\section{Benchmark setup}
+Benchmarking should ideally be performed in an environment of the
+highest possible control and predictability in order to eliminate
+sources of error and achieve consistency in our benchmarks. In our
+case, upholding these ideals means that we should use two separate
+machines for performing the benchmarks connected through a
+high-bandwidth, low-latency LAN link
 
-\section{Performance thresholds}
+Since interaction with our system occurs over HTTP we can base our
+benchmarking setup on one of the large number of HTTP benchmarking
+tools available such as ApacheBench
+(ab)\footnote{\url{http://httpd.apache.org/docs/2.2/programs/ab.html}}
+or wrk \footnote{\url{https://github.com/wg/wrk}}.
+
+During benchmarking, we need to continuously monitor system statistics
+in order to identify the bottlenecks limiting overall performance. A
+suitable utility for this purpose is \texttt{sar(1)} of the
+sysstat\footnote{\url{http://sebastien.godard.pagesperso-orange.fr/}}
+project which is able to collect and log a huge number of Linux system
+performance metrics.
+
+\section{Assignment types}
+The resource needs for an individual assignment differs with the type
+of assignment being assessed. One assignment might require significant
+mounts of CPU computational time while another might demand hefty
+amounts of memory. In order to claim complete testing coverage it is
+therefore important that we make sure that we include many different
+kinds of assignments in our tests, preferably in interlacing order
+
+For the most realistic results, old assignments from previous course
+runs are to be preferred.
+
+\section{Acceptance thresholds}
 In order to prevent making overestimated hosting recommendations it's
 important to establish acceptable thresholds for assessment
 throughput. A system that is scaled toward delivering assessments "`as
@@ -45,15 +87,42 @@ consumed. This can be done by calculating the expected resource
 requirements for each assignment in the course. Our required
 throughput is then 
 
-\section{Estimating static requirements}
-We define static requirements as resources that scales linearily wuth
-an assignment, e.g. if we need to estimate the requried
-
-
 \section{Benchmarks}
+
+\subsection{Assessment latency}
+
+We test the base assessment latency by simply measuring the time
+required to assess a minimal submission. A minimal submission is the
+smallest possible submission which will travel through 
+
+\subsection{Assessment throughput}
+In this benchmark, we simply increase the number of concurrent
+assignments being assessed until the number assessments per minute
+drops below the acceptable threshold.
+
+As long as sufficient hardware resources are available, we expect the
+assessment throughput to scale linearly with the induced degree of
+assessment concurrency. However, once a hardware resource starts
+acting as a limiting factor, we expect to see decreasing
+performance. Our system metrics logging can then be used to determine
+bottleneck and thus allow us to focus on enhancing system performance
+in this area.
+
 In order to perform a complete evaluation of the system, we need to
 perform a th
 
+We will perform benchmarks such as
+
+ - "`baseline assessment latency"' "= How long does it take for an
+ "`empty"' assignment to pass through the assessment system.
+ - What is the maximum number of assignments that we can handle in
+ parallel i.e. when does throughput and/or latency worsen
+ - Benchmarking assignments which has their weight on various resource
+ requirements. such as one assignment requiring a lot of memory and
+ another being heavy on disk io.
+
+- Edge cases such as large number of small assignments, small number
+of huge assignments. 
 
 
 %%% Local Variables:

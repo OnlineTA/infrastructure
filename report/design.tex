@@ -11,8 +11,10 @@ minimum permissions across our entire system.
 
 \subsection{Container support}
 The design of the system enables the containerization model to be
-swapped, such that different containers can be used based on
-
+swapped, such that different containers can be used for the assessment
+of different assignments. Supporting this modularity is important
+since different assignments and teachers may have varying demands of
+the container used for assessment.
 
 \section{Users}
 There are two levels of users in the OnlineTA system. One is the user
@@ -22,22 +24,22 @@ anonymous submissions
 
 \subsection{Representing users on system}
 Name service lookup services in GNU/Linux systems are provided by the
-NSS (Name Service Switch) subsystem which is implemented in the Gnu
-glibc library. Lookup databases include users, groups and DNS
+Name Service Switch (NSS) subsystem which is implemented in the GNU
+C Library (glibc). Lookup databases include users, groups and DNS
 names. The NSS system provides a unified interface for performing
 lookups in a database backed by multiple services. The NSS system is
 extensible through services which is called in the order specified by
-the \texttt{nssswitch.conf} file. In the OnlineTA system, we add a
+the \texttt{/etc/nssswitch.conf} file. In the OnlineTA system, we add a
 password mapping module which can be used for looking up user names to
 UIDs and vice-verca\cite{nss}.
 
 This allows us to represent our dynamically created users on the Linux
 system and thus avoid having to define them statically in the
-/etc/passwd file.
+\texttt{/etc/passwd} file.
 
 We perform user handling in two separate NSS modules for handling
 named an anonymous submission respectively. The usernames of
-identified submissions are assigned by a NSS module which implements
+identified submissions are assigned by an NSS module which implements
 the bidirectional UID to KU-username mapping previously described.
 conversion scheme previously described.
 
@@ -46,6 +48,74 @@ differently through a different NSS module. This module works on lists
 of preallocated users and is autonomously responsible for maintaining
 lists of allocated and non-allocated users \fxnote{rewrite}
 
+\section{Storage}
+In our current design, availability of persistent local disk storage
+is assumed. The directory structure used for storing submission data
+is as follows (\cref{fig:filetree}):
+
+\begin{description}
+\item{\texttt{submissions}} The parent of the directory tree
+\item{\texttt{<UUID>}} A directory named after the UUID assigned to
+  a submission is placed as a sub directory of the submissions
+  directory. It holds all the files related to a submission, including
+  it's assessment.  he contents of this directory are owned by the user
+  who made the submission and thus it can only be accessed by an
+  assessment unit running as this user.
+\item{\texttt{incoming}} This directory is where the metadata files of
+  all newly created directories are stored. It is monitored by the
+  scheduler using \texttt{inotify} which, after a metadata file is
+  scheduled it is moved away from this directory
+\item{\texttt{accepted}} This directory holds metadata files which has
+  been accepted for processing. The separation of incoming and
+  accepted metadata files is needed due to limitations of inotify \fxnote{elaborate}
+\end{description}
+
+%\fxnote{Make actual figure}
+\begin{figure}
+\centering
+\begin{verbatim}
+              submissions
+                 /|\
+                / | \
+               /  |  +-----+------------+
+              /   |        |      |      |
+          UUID1   UUID2   UUID3   |  incoming
+                                  |     /\
+                ------------------+    /  \
+               |                      /    \
+               |        UUID1.metadata UUID2.metadata
+            accepted
+               |
+         UUID3.metadata
+\end{verbatim}
+\caption{Tree showing our folder structure in a state where one
+  assignment (UUID3) has been accepted an scheduled, while two
+  assignments (UUID1 and UUID2) are waiting to be picked up by the scheduler}
+\label{fig:filetree}
+\end{figure}
+
+\section{Capabilities}
+In \cref{sec:cap} we introduced the concept of capabilities. In this
+section, we will describe the properties\cite{cap7} of the specific capabilities
+that are referred to henceforth.
+
+\begin{description}
+\item[\texttt{CAP\_CHOWN}] The process in possession of this
+  capability can use the \texttt{chown} syscall to change the owner of
+  any file or folder on the system.
+\item[\texttt{CAP\_SUID}] Allows a process to freely change its
+  effective UID.
+\item[\texttt{CAP\_SETPCAP}] This capability allows a process to
+  either add a capability from the bounding set of capabilities
+  inherited from its calling process or drop a capability from its
+  current set.
+\item[\texttt{CAP\_SYSADM}] This capability allows a process to
+  perform a large number of administrative tasks. We are primarily
+  interested in using the \texttt{mount} syscall to prepare the
+  filesystems used for assessment.
+%\item{\texttt{}}
+\end{description}
+
 \section{Components}
 Our proposed design for the OnlineTA system is split onto a number of
 different components which are described in this section. Their
@@ -53,7 +123,7 @@ relationship is shown in \cref{fig:arch}.
 
 \begin{figure}
 \centering
-\includegraphics[width=\textwidth]{figures/arch-crop}
+\includegraphics[width=\textwidth]{figures/arch-in-crop}
 
 \caption{Flowchart showing interactions between the components of the
   OnlineTA system}
@@ -67,8 +137,8 @@ identity of the user submitting the assignment. It will also perform
 the initial storage of the submission. Furthermore, the frontend is
 responsible for returning the assessment to the student.
 
-It will go through the following steps in order to accept an
-assignment.
+%It will go through the following steps in order to accept an
+%assignment.
 
 The frontend has the following roles
 \begin{itemize}
@@ -78,10 +148,11 @@ The frontend has the following roles
 \item Generating and assigning a UUID to the submission
 \item Writing the initial metadata file
 \item Creating directory for containing the submission and setting
-  ownership of files
+  ownership of files \fxnote{It would be nice to state that the "work queue" is just a folder of folders, each owned by the respective user that made the submission.}
 \end{itemize}
 
-This component require the \texttt{CAP\_CHOWN} capability.
+This component require the \texttt{CAP\_CHOWN} capability and write
+access to the submission root folder.
 
 \paragraph{Scheduler}
 The scheduler will pick up the assignment after it has been saved to
@@ -101,12 +172,16 @@ The scheduler has the following roles:
 \item Invoking workers for performing the actual assignment
 \end{itemize}
 
+The scheduler does not need any special capabilities, but it requires
+read and write permissions to the metadata queue directory.
+
+
 \paragraph{Worker}
 A worker process is spawned by the scheduler and its overall purpose
 is to set up and initiate the assessment process. It is initially
 started as the \texttt{onlineta} user but after the assessment
 environment has been configured and the containers has been created it
-will \texttt{suid} to the user owning the submission and shed its special
+will \texttt{suid} to the user owning the submission and thereby shed its special
 capabilities.
 
 Specifically, its roles are the following
@@ -121,12 +196,11 @@ The special capabilities required by the Worker process are
 \texttt{CAP\_SYSADM}, \texttt{CAP\_SUID} and \texttt{CAP\_SETPCAP}
 
 \paragraph{Assessment units}
-An assessment unit handles the actual assessment of an assignment... TODO
+An assessment unit handles the actual assessment of an assignment. 
 
-\section{System flow}
-Describe what happens after a student submits an assignment, that is,
-what is the individual role of each of the components and what is the 
-
+%\section{System flow}
+%Describe what happens after a student submits an assignment, that is,
+%what is the individual role of each of the components and what is the 
 
 \section{Interactions}
 The scope of the current implementation is limited to supporting
@@ -153,66 +227,66 @@ supports the following actions:
     are completed
 \item[\texttt{/submit/<course>/<assignment>/<KU-username>}] This
   request type is the same as the previous except that it will perform
-  an attributed submission.
+  an attributed submission. Thus, an assignment submitted through this
+  request will only be accepted if all of its constituents are signed
+  by the GPG-key mapped to the proclaimed user.
+
 \item[\texttt{/query/<uuid>}] Used to query assessment status of
-  assignment identified by given UUID. The status of an assignment can
-  be the following ACCEPTED The assignment has been accepted and is
-  awaiting schediling QUEUED The assignment has been picked up by the
-  scheduler and is awaiting prioirization TODO
+  assignment identified by given UUID. This request is site-effect free and
+  can thus never alter the state of the system. The status of an assignment can
+  be the following
+  \begin{description}
+    \item[ACCEPTED] The assignment has been accepted and is
+      awaiting schediling
+    \item[QUEUED] The assignment has been picked up by the
+      scheduler and is awaiting prioirization
+    \item[PROCESSING] The assignment is in the process of being assessed
+    \item[FINISHED] Assessment has been successfully completed
+    \item[FAILED] Assessment has failed
+  \end{description}
 \item[\texttt{/assessment/<uuid>}] Retrieves the assessment of a
-  submission if availible
+  submission if available. This request is not nullipotent since the
+  assessments of anonymous submissions will cease to be available once
+  this request has been performed.
 \end{description}
 
 \subsection{Relaying assessment to user}
+
+
+
 TODO: Describe what happens when a user requests an assessment.
 
-\section{Storage}
-In our current design, availability of persistent local disk storage
-is assumed. The directory structure used for storing submission data
-is as follows:
-
-\begin{description}
-\item{\texttt{submissions}} The parent of the directory tree
-\item{\texttt{<UUID>}} A directory named after the UUID assigned to
-  a submission is placed as a sub directory of the submissions
-  directory. It holds all the files related to a submission, including
-  it's assessment.  he contents of this directory are owned by the user
-  who made the submission and thus it can only be accessed by an
-  assessment unit running as this user.
-\item{\texttt{incoming}} This directory is where the metadata files of
-  all newly created directories are stored. It is monitored by the
-  scheduler using \texttt{inotify} which, after a metadata file is
-  scheduled it is moved away from this directory
-\item{\texttt{accepted}} This directory holds metadata files which has
-  been accepted for processing. The separation of incoming and
-  accepted metadata files is needed due to limitations of inotify \fxnote{elaborate}
-\end{description}
-
-\fxnote{Make actual figure}
-\begin{verbatim}
-    submissions
-       /|\
-      / | \
-     /  |  +-----+---------+
-    /   |        |         |
-UUID1   UUID2   UUID3   metadata
-                           /\
-      --------------------+  \
-     |                   /    \
-     |        UUID1.metadata UUID2.metadata
-  incoming
-     |
-   UUID3.metadata
-
-\end{verbatim}
+%\section{Interfaces}
 
 
-\section{Interfaces}
+%\section{Scaling and distributing}
+%A driving idea behind our design is to enable horizontal
+%scalability. A key element to acheiving this
+
+%\fxnote{
+%What do you mean by horizontal scalability?
+%Another thing I think is missing is an explanation of how this is handled course-wise? E.g. one server per course.}
 
 
-\section{Scaling and distributing}
-A driving idea behind our design is to enable horizontal
-scalability. A key element to acheiving this
+
+\section{Large Submissions}
+Some courses may require large submissions which could saturate
+any feasible internet link through only a limited number of concurrent
+uploads. We propose that the upload bandwidth requirement can be
+reduced by applying a delta transfer algorithm on repeated
+submissions.
+
+The rsync algorithm is an abvious candidate for solving this
+problem. However, the alogrim assumes that the receiving end has
+access to all files. Honoring our porperty of minimal user permissions
+the submission receiving process won't have access to the files of the
+previous submissions. We therefore propose a variation of the rsync
+algorithm built for our purpose. Since we cannot rely on being able to
+retrieve the state of the remote files we must be able to keep the
+difference between local and remote files locally. TODO
+
+TODO: Finish and compare to git (Why cant git perform the differential
+transfer?
 
 
 %%% Local Variables:
