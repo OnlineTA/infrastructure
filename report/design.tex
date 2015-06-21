@@ -269,24 +269,24 @@ TODO: Describe what happens when a user requests an assessment.
 
 
 
-\section{Large Submissions}
-Some courses may require large submissions which could saturate
-any feasible internet link through only a limited number of concurrent
-uploads. We propose that the upload bandwidth requirement can be
-reduced by applying a delta transfer algorithm on repeated
-submissions.
+%\section{Large Submissions}
+%Some courses may require large submissions which could saturate
+%any feasible internet link through only a limited number of concurrent
+%uploads. We propose that the upload bandwidth requirement can be
+%reduced by applying a delta transfer algorithm on repeated
+%submissions.
 
-The rsync algorithm is an abvious candidate for solving this
-problem. However, the alogrim assumes that the receiving end has
-access to all files. Honoring our porperty of minimal user permissions
-the submission receiving process won't have access to the files of the
-previous submissions. We therefore propose a variation of the rsync
-algorithm built for our purpose. Since we cannot rely on being able to
-retrieve the state of the remote files we must be able to keep the
-difference between local and remote files locally. TODO
+%The rsync algorithm is an abvious candidate for solving this
+%problem. However, the alogrim assumes that the receiving end has
+%access to all files. Honoring our porperty of minimal user permissions
+%the submission receiving process won't have access to the files of the
+%previous submissions. We therefore propose a variation of the rsync
+%algorithm built for our purpose. Since we cannot rely on being able to
+%retrieve the state of the remote files we must be able to keep the
+%difference between local and remote files locally. TODO
 
-TODO: Finish and compare to git (Why cant git perform the differential
-transfer?
+%TODO: Finish and compare to git (Why cant git perform the differential
+%transfer?
 
 
 %%% Local Variables:
